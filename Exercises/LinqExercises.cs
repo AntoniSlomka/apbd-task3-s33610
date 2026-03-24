@@ -16,7 +16,8 @@ public sealed class LinqExercises
     /// </summary>
     public IEnumerable<string> Task01_StudentsFromWarsaw()
     {
-        throw NotImplemented(nameof(Task01_StudentsFromWarsaw));
+        return UniversityData.Students.Where(s => s.City == "Warsaw").Select(e =>
+        $"{e.IndexNumber}, {e.FirstName}, {e.LastName}, {e.City}");
     }
 
     /// <summary>
@@ -30,7 +31,7 @@ public sealed class LinqExercises
     /// </summary>
     public IEnumerable<string> Task02_StudentEmailAddresses()
     {
-        throw NotImplemented(nameof(Task02_StudentEmailAddresses));
+        return UniversityData.Students.Select(s => s.Email);
     }
 
     /// <summary>
@@ -45,7 +46,8 @@ public sealed class LinqExercises
     /// </summary>
     public IEnumerable<string> Task03_StudentsSortedAlphabetically()
     {
-        throw NotImplemented(nameof(Task03_StudentsSortedAlphabetically));
+        return UniversityData.Students.OrderBy(s => s.LastName).ThenBy(s => s.FirstName)
+            .Select(e => $"{e.IndexNumber}, {e.FirstName}, ${e.LastName}");
     }
 
     /// <summary>
@@ -60,7 +62,8 @@ public sealed class LinqExercises
     /// </summary>
     public IEnumerable<string> Task04_FirstAnalyticsCourse()
     {
-        throw NotImplemented(nameof(Task04_FirstAnalyticsCourse));
+        return [UniversityData.Courses.Where(c => c.Category == "Analytics")
+            .Select(e => $"{e.Title}, {e.StartDate}").FirstOrDefault() ?? "No course from the Analytics category"];
     }
 
     /// <summary>
@@ -77,7 +80,7 @@ public sealed class LinqExercises
     /// </summary>
     public IEnumerable<string> Task05_IsThereAnyInactiveEnrollment()
     {
-        throw NotImplemented(nameof(Task05_IsThereAnyInactiveEnrollment));
+        return [UniversityData.Enrollments.Exists(e => !e.IsActive) ? "True" : "False"];
     }
 
     /// <summary>
@@ -92,7 +95,7 @@ public sealed class LinqExercises
     /// </summary>
     public IEnumerable<string> Task06_DoAllLecturersHaveDepartment()
     {
-        throw NotImplemented(nameof(Task06_DoAllLecturersHaveDepartment));
+        return [UniversityData.Lecturers.All(l => l.Department != "") ? "1" : "0"];
     }
 
     /// <summary>
