@@ -1,4 +1,5 @@
 using LinqConsoleLab.EN.Data;
+using System.Reflection.Metadata;
 
 namespace LinqConsoleLab.EN.Exercises;
 
@@ -325,7 +326,16 @@ public sealed class LinqExercises
     /// </summary>
     public IEnumerable<string> Challenge02_AprilCoursesWithoutFinalGrades()
     {
-        throw NotImplemented(nameof(Challenge02_AprilCoursesWithoutFinalGrades));
+        return UniversityData.Courses.GroupJoin(UniversityData.Enrollments,
+            c => c.Id,
+            e => e.CourseId,
+            (c, e) => new
+            {
+                c,
+                entrollments = e
+            })
+            .Where(ce => ce.c.StartDate.Month == 4 && ce.c.StartDate.Year == 2026 && ce.entrollments.All(b => !b.FinalGrade.HasValue))
+            .Select(entry => $"{entry.c.Title}");
     }
 
     /// <summary>
@@ -343,7 +353,14 @@ public sealed class LinqExercises
     /// </summary>
     public IEnumerable<string> Challenge03_LecturersAndAverageGradeAcrossTheirCourses()
     {
-        throw NotImplemented(nameof(Challenge03_LecturersAndAverageGradeAcrossTheirCourses));
+        return UniversityData.Lecturers.Join(UniversityData.Courses,
+            l => l.Id,
+            c => c.LecturerId,
+            (l, c) => new { l, c }).GroupJoin(UniversityData.Enrollments,
+            lc => lc.c.Id,
+            e => e.CourseId,
+            (lc, e) => new { lc, enrollmentsAverage = e.Where(b => b.FinalGrade.HasValue).Average(c => c.FinalGrade) })
+            .Select(d => $"{d.lc.l.FirstName}, {d.lc.l.LastName}, {d.enrollmentsAverage}");
     }
 
     /// <summary>
