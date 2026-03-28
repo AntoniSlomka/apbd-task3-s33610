@@ -332,9 +332,11 @@ public sealed class LinqExercises
             (c, e) => new
             {
                 c,
-                entrollments = e
+                en = e
             })
-            .Where(ce => ce.c.StartDate.Month == 4 && ce.c.StartDate.Year == 2026 && ce.entrollments.All(b => !b.FinalGrade.HasValue))
+            .Where(ce => ce.c.StartDate.Month == 4 && 
+                    ce.c.StartDate.Year == 2026 && 
+                    ce.en.All(b => !b.FinalGrade.HasValue))
             .Select(entry => $"{entry.c.Title}");
     }
 
@@ -353,15 +355,20 @@ public sealed class LinqExercises
     /// </summary>
     public IEnumerable<string> Challenge03_LecturersAndAverageGradeAcrossTheirCourses()
     {
-        return UniversityData.Lecturers.Join(UniversityData.Courses,
+        return UniversityData.Lecturers
+            .Join(UniversityData.Courses,
             l => l.Id,
             c => c.LecturerId,
-            (l, c) => new { l, c }).GroupJoin(UniversityData.Enrollments,
-            lc => lc.c.Id,
+            (l, c) => new { l, c })
+            .Join(UniversityData.Enrollments,
+            joined => joined.c.Id,
             e => e.CourseId,
-            (lc, e) => new { lc, enrollmentsAverage = e.Where(b => b.FinalGrade.HasValue).Average(c => c.FinalGrade) })
-            .Select(d => $"{d.lc.l.FirstName}, {d.lc.l.LastName}, {d.enrollmentsAverage}");
-    }
+            (joined, e) => new { joined.l, e })
+            .Where(joined => joined.e.FinalGrade != null)
+            .GroupBy(joined => new { joined.l.FirstName, joined.l.LastName })
+            .Select(joined => $"{joined.Key.FirstName}, {joined.Key.LastName}, {joined.Average(g => g.e.FinalGrade)}")
+            .ToList();
+        }
 
     /// <summary>
     /// Challenge:
@@ -378,7 +385,16 @@ public sealed class LinqExercises
     /// </summary>
     public IEnumerable<string> Challenge04_CitiesAndActiveEnrollmentCounts()
     {
-        throw NotImplemented(nameof(Challenge04_CitiesAndActiveEnrollmentCounts));
+        return UniversityData.Students
+            .Join(UniversityData.Enrollments,
+            s => s.Id,
+            e => e.StudentId,
+            (s, e) => new { s.City, e.IsActive })
+            .Where(joine => joine.IsActive)
+            .GroupBy(joined => joined.City)
+            .Select(joined => $"{joined.Key}, {joined.Count()}")
+            .OrderByDescending(joined => joined.Count())
+            .ToList();
     }
 
     private static NotImplementedException NotImplemented(string methodName)
